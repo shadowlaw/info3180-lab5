@@ -45,13 +45,17 @@ def login():
             # passed to the login_user() method.
             user = UserProfile.query.filter_by(username=username).first()
             
-            # get user id, load into session
-            login_user(user)
-
-            # remember to flash a message to the user
-            flash("Login Successful", "success")
-            
-            return redirect(url_for("secure"))  # they should be redirected to a secure-page route instead
+            if user.password == password:
+                # get user id, load into session
+                login_user(user)
+                
+                next_page = request.args.get('next')
+                # remember to flash a message to the user
+                flash("Login Successful", "success")
+                print next_page
+                return redirect(next_page or url_for("secure") )  # they should be redirected to a secure-page route instead
+                
+            flash("login failed", 'danger')
     return render_template("login.html", form=form)
 
 @app.route('/secure-page')
@@ -59,6 +63,14 @@ def login():
 def secure():
     return render_template('secure.html')
 
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    
+    flash('Logged out', 'success')
+    return redirect(url_for("home"))
 
 # user_loader callback. This callback is used to reload the user object from
 # the user ID stored in the session
