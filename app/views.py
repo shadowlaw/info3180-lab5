@@ -45,7 +45,7 @@ def login():
             # passed to the login_user() method.
             user = UserProfile.query.filter_by(username=username).first()
             
-            if user.password == password:
+            if user is not None and user.password == password:
                 # get user id, load into session
                 login_user(user)
                 
